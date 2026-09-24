@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import os
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -14,7 +11,6 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 from pyxlsb import open_workbook
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-<<<<<<< HEAD
 DEFAULT_EXCEL_PATH = BASE_DIR / "inventario.xlsx"
 SOURCE_XLSB_PATH = BASE_DIR / "INVENTARIO DE EQUIPOS ENERO 2026.xlsb"
 
@@ -38,10 +34,6 @@ def _resolve_excel_path():
 
 SOURCE_EXCEL_PATH = _resolve_excel_path()
 EXCEL_PATH = DEFAULT_EXCEL_PATH if SOURCE_EXCEL_PATH.suffix.lower() == ".xlsb" else SOURCE_EXCEL_PATH
-=======
-EXCEL_PATH = BASE_DIR / "inventario.xlsx"
-SOURCE_XLSB_PATH = BASE_DIR / "INVENTARIO DE EQUIPOS ENERO 2026.xlsb"
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 excel_lock = Lock()
 
 PRODUCT_HEADERS = ["id", "sku", "name", "description", "brand", "model", "part_number", "unit", "group", "category", "floor", "location", "position", "observation", "source_sheet", "item", "stock", "min_stock", "price", "updated_at"]
@@ -100,16 +92,11 @@ def write_data(products, movements):
 def initialize_database():
     if EXCEL_PATH.exists():
         return
-<<<<<<< HEAD
     if SOURCE_EXCEL_PATH.exists() and SOURCE_EXCEL_PATH.suffix.lower() == ".xlsb":
         write_data(_import_xlsb_products(SOURCE_EXCEL_PATH), [])
         return
     if SOURCE_XLSB_PATH.exists():
         write_data(_import_xlsb_products(SOURCE_XLSB_PATH), [])
-=======
-    if SOURCE_XLSB_PATH.exists():
-        write_data(_import_xlsb_products(), [])
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         return
     now = datetime.now().isoformat(timespec="seconds")
     products = [
@@ -128,18 +115,11 @@ def initialize_database():
     write_data(products, movements)
 
 
-<<<<<<< HEAD
 def _import_xlsb_products(source_path=None):
     source_path = Path(source_path) if source_path else SOURCE_XLSB_PATH
     products = []
     next_id = 1
     with open_workbook(source_path) as workbook:
-=======
-def _import_xlsb_products():
-    products = []
-    next_id = 1
-    with open_workbook(SOURCE_XLSB_PATH) as workbook:
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         for sheet_name in workbook.sheets:
             with workbook.get_sheet(sheet_name) as sheet:
                 rows = ([cell.v for cell in row] for row in sheet.rows())
@@ -258,7 +238,6 @@ def export_products_workbook():
     sheet.column_dimensions["K"].width = 16
     sheet.column_dimensions["M"].width = 32
 
-<<<<<<< HEAD
     movements_sheet = workbook.create_sheet("Movimientos")
     movement_headers = ["ID", "PRODUCTO ID", "CODIGO", "PRODUCTO", "TIPO", "CANTIDAD", "PISO", "LOCKER", "NOTA", "FECHA"]
     movements_sheet.append(movement_headers)
@@ -282,8 +261,6 @@ def export_products_workbook():
     movements_sheet.column_dimensions["D"].width = 32
     movements_sheet.column_dimensions["I"].width = 32
 
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
