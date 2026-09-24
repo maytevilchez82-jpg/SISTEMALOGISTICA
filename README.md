@@ -37,3 +37,7 @@ Abre `http://127.0.0.1:5000` en el navegador.
 - Reportes con indicadores basicos.
 - Buscar por nombre, SKU o categoria.
 - Configuracion de preferencias de usuario.
+<<<<<<< HEAD
+=======
+"# SISTEMALOGISTICA" 
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac

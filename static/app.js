@@ -26,6 +26,7 @@ function showToast(message, isError = false) {
     setTimeout(() => { toast.className = 'toast'; }, 3000);
 }
 
+<<<<<<< HEAD
 function renderProfileName() {
     const profileName = localStorage.getItem('inventoryProfileName') || 'Admin General';
     const profileArea = localStorage.getItem('inventoryProfileArea') || 'Administración';
@@ -61,6 +62,8 @@ function editProfileName() {
     showToast('Perfil actualizado.');
 }
 
+=======
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 function renderProducts() {
     document.querySelector('#view-products thead th:nth-child(5)').textContent = 'Piso';
     document.querySelector('#view-products thead th:nth-child(6)').textContent = 'Locacion';
@@ -86,6 +89,7 @@ function renderMovements() {
     document.querySelector('#recent-movements').innerHTML = state.movements.slice(0, 4).map(move => `<tr><td><strong>${escapeHtml(move.product_name)}</strong><small class="table-sub">${escapeHtml(move.sku)}</small></td><td><span class="movement ${move.movement_type === 'Entrada' ? 'in' : 'out'}"><i>${move.movement_type === 'Entrada' ? '↑' : '↓'}</i>${move.movement_type}</span></td><td><strong>${move.quantity}</strong> uds.</td><td>${date(move.created_at)}</td><td>${escapeHtml(move.note || 'Sin nota')}</td></tr>`).join('');
 }
 
+<<<<<<< HEAD
 function renderReports() {
     const entries = state.movements.filter(move => move.movement_type === 'Entrada').reduce((total, move) => total + Number(move.quantity || 0), 0);
     const exits = state.movements.filter(move => move.movement_type === 'Salida').reduce((total, move) => total + Number(move.quantity || 0), 0);
@@ -122,6 +126,8 @@ function notifyLowStock() {
     }
 }
 
+=======
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 async function loadData() {
     const [dashboard, products, movements] = await Promise.all([api('/api/dashboard'), api('/api/products'), api('/api/movements')]);
     state.products = products;
@@ -131,8 +137,11 @@ async function loadData() {
     document.querySelector('#metric-low').textContent = dashboard.low_stock;
     renderProducts();
     renderMovements();
+<<<<<<< HEAD
     renderReports();
     notifyLowStock();
+=======
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 }
 
 function navigate(viewName) {
@@ -189,6 +198,7 @@ document.querySelector('#product-modal-modern').addEventListener('click', event 
 document.querySelector('#mobile-menu').addEventListener('click', () => document.querySelector('#sidebar').classList.toggle('open'));
 document.querySelector('#product-filter').addEventListener('input', event => filterProducts(event.target.value));
 document.querySelector('#global-search').addEventListener('input', event => renderSearch(event.target.value));
+<<<<<<< HEAD
 document.querySelector('#edit-profile-button').addEventListener('click', editProfileName);
 document.querySelector('#low-stock-notifications').addEventListener('change', async event => {
     if (!event.target.checked) return;
@@ -196,6 +206,8 @@ document.querySelector('#low-stock-notifications').addEventListener('change', as
     notifyLowStock();
 });
 renderProfileName();
+=======
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 
 document.querySelector('#product-form-modern').addEventListener('submit', async event => {
     event.preventDefault();
@@ -205,8 +217,12 @@ document.querySelector('#movement-form').addEventListener('submit', async event 
     event.preventDefault();
     try {
         const data = Object.fromEntries(new FormData(event.target));
+<<<<<<< HEAD
         const productCode = data.product_sku.trim().toLowerCase();
         const product = state.products.find(item => item.sku.toLowerCase() === productCode || String(item.id).toLowerCase() === productCode);
+=======
+        const product = state.products.find(item => item.sku.toLowerCase() === data.product_sku.trim().toLowerCase());
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         if (!product) throw new Error('El codigo del producto no existe.');
         data.product_id = product.id;
         data.quantity = Number(data.quantity);
@@ -219,5 +235,9 @@ document.querySelector('#movement-form').addEventListener('submit', async event 
     } catch (error) { showToast(error.message, true); }
 });
 document.querySelector('#export-button').addEventListener('click', async () => { try { const response = await fetch('/api/export'); if (!response.ok) throw new Error('No se pudo exportar el inventario.'); const blob = await response.blob(); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `inventario-nakama-soluciones-${new Date().toISOString().slice(0, 10)}.xlsx`; link.click(); URL.revokeObjectURL(link.href); showToast('Excel exportado correctamente.'); } catch (error) { showToast(error.message, true); } });
+<<<<<<< HEAD
 document.querySelector('#report-button').addEventListener('click', () => document.querySelector('#export-button').click());
+=======
+document.querySelector('#report-button').addEventListener('click', () => showToast('Reporte generado. Puedes consultar el inventario y exportarlo en Excel.'));
+>>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 loadData().catch(error => showToast(error.message, true));
