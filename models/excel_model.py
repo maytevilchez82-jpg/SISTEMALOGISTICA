@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import os
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -9,12 +6,12 @@ from threading import Lock
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.drawing.image import Image
-from openpyxl.styles import Alignment, Font
+from openpyxl.styles import Alignment, Border, Font, Side
+from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from pyxlsb import open_workbook
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-<<<<<<< HEAD
 DEFAULT_EXCEL_PATH = BASE_DIR / "inventario.xlsx"
 SOURCE_XLSB_PATH = BASE_DIR / "INVENTARIO DE EQUIPOS ENERO 2026.xlsb"
 
@@ -38,10 +35,6 @@ def _resolve_excel_path():
 
 SOURCE_EXCEL_PATH = _resolve_excel_path()
 EXCEL_PATH = DEFAULT_EXCEL_PATH if SOURCE_EXCEL_PATH.suffix.lower() == ".xlsb" else SOURCE_EXCEL_PATH
-=======
-EXCEL_PATH = BASE_DIR / "inventario.xlsx"
-SOURCE_XLSB_PATH = BASE_DIR / "INVENTARIO DE EQUIPOS ENERO 2026.xlsb"
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 excel_lock = Lock()
 
 PRODUCT_HEADERS = ["id", "sku", "name", "description", "brand", "model", "part_number", "unit", "group", "category", "floor", "location", "position", "observation", "source_sheet", "item", "stock", "min_stock", "price", "updated_at"]
@@ -100,16 +93,11 @@ def write_data(products, movements):
 def initialize_database():
     if EXCEL_PATH.exists():
         return
-<<<<<<< HEAD
     if SOURCE_EXCEL_PATH.exists() and SOURCE_EXCEL_PATH.suffix.lower() == ".xlsb":
         write_data(_import_xlsb_products(SOURCE_EXCEL_PATH), [])
         return
     if SOURCE_XLSB_PATH.exists():
         write_data(_import_xlsb_products(SOURCE_XLSB_PATH), [])
-=======
-    if SOURCE_XLSB_PATH.exists():
-        write_data(_import_xlsb_products(), [])
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         return
     now = datetime.now().isoformat(timespec="seconds")
     products = [
@@ -128,18 +116,11 @@ def initialize_database():
     write_data(products, movements)
 
 
-<<<<<<< HEAD
 def _import_xlsb_products(source_path=None):
     source_path = Path(source_path) if source_path else SOURCE_XLSB_PATH
     products = []
     next_id = 1
     with open_workbook(source_path) as workbook:
-=======
-def _import_xlsb_products():
-    products = []
-    next_id = 1
-    with open_workbook(SOURCE_XLSB_PATH) as workbook:
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         for sheet_name in workbook.sheets:
             with workbook.get_sheet(sheet_name) as sheet:
                 rows = ([cell.v for cell in row] for row in sheet.rows())
@@ -195,6 +176,39 @@ def get_products():
     return sorted(products, key=lambda item: item["name"])
 
 
+def _fit_table_columns(sheet, min_row, max_row, max_column, width_limits=None):
+    width_limits = width_limits or {}
+    column_widths = {}
+    for column_index in range(1, max_column + 1):
+        longest = max(
+            (len(line) for row_index in range(min_row, max_row + 1)
+             for line in str(sheet.cell(row=row_index, column=column_index).value or "").splitlines()),
+            default=0,
+        )
+        width = min(max(longest + 2, 12), width_limits.get(column_index, 255))
+        column_widths[column_index] = width
+        sheet.column_dimensions[get_column_letter(column_index)].width = width
+
+    for row_index in range(min_row, max_row + 1):
+        line_count = 1
+        for column_index in range(1, max_column + 1):
+            cell = sheet.cell(row=row_index, column=column_index)
+            cell.alignment = Alignment(
+                horizontal="center" if row_index == min_row else cell.alignment.horizontal,
+                vertical=cell.alignment.vertical,
+                text_rotation=cell.alignment.text_rotation,
+                wrap_text=True,
+                shrink_to_fit=cell.alignment.shrink_to_fit,
+                indent=cell.alignment.indent,
+            )
+            text = str(cell.value or "")
+            width = max(column_widths[column_index] - 2, 1)
+            wrapped_lines = sum(max(1, (len(line) + width - 1) // width) for line in text.splitlines())
+            line_count = max(line_count, wrapped_lines)
+        if line_count > 1:
+            sheet.row_dimensions[row_index].height = min(line_count * 15, 409.5)
+
+
 def export_products_workbook():
     workbook = Workbook()
     sheet = workbook.active
@@ -202,8 +216,8 @@ def export_products_workbook():
     logo_path = BASE_DIR / "static" / "NAKAMA LOGO 1.jpeg"
     if logo_path.exists():
         logo = Image(logo_path)
-        logo.width = 200
-        logo.height = 75
+        logo.width = 240
+        logo.height = 90
         sheet.add_image(logo, "A1")
     sheet.merge_cells("B1:N2")
     title = sheet["B1"]
@@ -219,7 +233,7 @@ def export_products_workbook():
     sheet.row_dimensions[2].height = 40
     sheet.row_dimensions[3].height = 10
 
-    headers = ["ID", "HOJA", "ITEM", "PRODUCTO", "MARCA", "MODELO", "PART NUMBER", "UNIDAD", "CANTIDAD", "PISO", "LOCKER", "POSICION", "OBSERVACION", "ESTADO"]
+    headers = ["ID", "TIPO", "ITEM", "PRODUCTO", "MARCA", "MODELO", "PART NUMBER", "UNIDAD", "CANTIDAD", "PISO", "LOCKER", "POSICION", "OBSERVACION", "ESTADO"]
     for column, header in enumerate(headers, start=1):
         sheet.cell(row=4, column=column, value=header)
     for product in get_products():
@@ -241,6 +255,10 @@ def export_products_workbook():
         ])
 
     last_row = max(sheet.max_row, 5)
+    table_border = Border(left=Side(style="thin", color="000000"), right=Side(style="thin", color="000000"), top=Side(style="thin", color="000000"), bottom=Side(style="thin", color="000000"))
+    for row in sheet.iter_rows(min_row=4, max_row=last_row, min_col=1, max_col=14):
+        for cell in row:
+            cell.border = table_border
     table = Table(displayName="InventarioTabla", ref=f"A4:N{last_row}")
     table.tableStyleInfo = TableStyleInfo(
         name="TableStyleMedium2",
@@ -251,21 +269,42 @@ def export_products_workbook():
     )
     sheet.add_table(table)
     sheet.freeze_panes = "A5"
-    sheet.column_dimensions["A"].width = 12
-    for column in "BCDEFGHIJKLMN":
-        sheet.column_dimensions[column].width = 20
-    sheet.column_dimensions["D"].width = 36
-    sheet.column_dimensions["K"].width = 16
-    sheet.column_dimensions["M"].width = 32
+    _fit_table_columns(sheet, 4, last_row, 14, {4: 83})
 
-<<<<<<< HEAD
-    movements_sheet = workbook.create_sheet("Movimientos")
-    movement_headers = ["ID", "PRODUCTO ID", "CODIGO", "PRODUCTO", "TIPO", "CANTIDAD", "PISO", "LOCKER", "NOTA", "FECHA"]
-    movements_sheet.append(movement_headers)
+    output = BytesIO()
+    workbook.save(output)
+    output.seek(0)
+    return output
+
+
+def export_movements_workbook():
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Entradas y salidas"
+    logo_path = BASE_DIR / "static" / "NAKAMA LOGO 1.jpeg"
+    if logo_path.exists():
+        logo = Image(logo_path)
+        logo.width = 200
+        logo.height = 75
+        sheet.add_image(logo, "A1")
+    sheet.merge_cells("B1:I2")
+    title = sheet["B1"]
+    title.value = "ENTRADAS Y SALIDAS DE STOCK"
+    title.font = Font(name="Calibri", size=18, bold=True, color="18236F")
+    title.alignment = Alignment(horizontal="center", vertical="center")
+    sheet.merge_cells("B3:I3")
+    download_date = sheet["B3"]
+    download_date.value = f"Fecha de descarga: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    download_date.font = Font(name="Calibri", size=11, italic=True, color="5C747C")
+    download_date.alignment = Alignment(horizontal="center", vertical="center")
+    sheet.row_dimensions[1].height = 40
+    sheet.row_dimensions[2].height = 40
+    headers = ["ID", "CODIGO", "PRODUCTO", "TIPO", "CANTIDAD", "PISO", "LOCKER", "NOTA", "FECHA"]
+    for column, header in enumerate(headers, start=1):
+        sheet.cell(row=5, column=column, value=header)
     for movement in get_movements():
-        movements_sheet.append([
+        sheet.append([
             movement.get("id"),
-            movement.get("product_id"),
             movement.get("sku", ""),
             movement.get("product_name", ""),
             movement.get("movement_type", ""),
@@ -275,15 +314,17 @@ def export_products_workbook():
             movement.get("note", ""),
             movement.get("created_at", ""),
         ])
-    movements_sheet.freeze_panes = "A2"
-    movements_sheet.auto_filter.ref = movements_sheet.dimensions
-    for column in "ABCDEFGHIJ":
-        movements_sheet.column_dimensions[column].width = 18
-    movements_sheet.column_dimensions["D"].width = 32
-    movements_sheet.column_dimensions["I"].width = 32
+    last_row = max(sheet.max_row, 6)
+    table_border = Border(left=Side(style="thin", color="000000"), right=Side(style="thin", color="000000"), top=Side(style="thin", color="000000"), bottom=Side(style="thin", color="000000"))
+    for row in sheet.iter_rows(min_row=5, max_row=last_row, min_col=1, max_col=9):
+        for cell in row:
+            cell.border = table_border
+    table = Table(displayName="MovimientosTabla", ref=f"A5:I{last_row}")
+    table.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showFirstColumn=False, showLastColumn=False, showRowStripes=True, showColumnStripes=False)
+    sheet.add_table(table)
+    sheet.freeze_panes = "A6"
+    _fit_table_columns(sheet, 5, last_row, 9)
 
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
@@ -354,3 +395,24 @@ def add_movement(data):
     })
     write_data(products, movements)
     return True, "Movimiento registrado correctamente."
+
+
+def delete_movement(movement_id):
+    products, movements = read_data()
+    movement = next((item for item in movements if item["id"] == int(movement_id)), None)
+    if not movement:
+        return False, "Movimiento no encontrado."
+    product = next((item for item in products if item["id"] == movement["product_id"]), None)
+    if not product:
+        return False, "Producto no encontrado."
+    quantity = int(movement["quantity"])
+    if movement["movement_type"] == "Entrada":
+        if product["stock"] < quantity:
+            return False, "No se puede eliminar la entrada porque el stock actual es insuficiente."
+        product["stock"] -= quantity
+    else:
+        product["stock"] += quantity
+    product["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    movements.remove(movement)
+    write_data(products, movements)
+    return True, "Movimiento eliminado correctamente."

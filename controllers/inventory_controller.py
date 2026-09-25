@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify, render_template, request, send_file
 
-from models.excel_model import add_movement, add_product, export_products_workbook, get_movements, get_products, read_data
+from models.excel_model import add_movement, add_product, delete_movement, export_movements_workbook, export_products_workbook, get_movements, get_products, read_data
 
 inventory_controller = Blueprint("inventory", __name__)
 
@@ -44,6 +44,16 @@ def export_inventory():
     )
 
 
+@inventory_controller.get("/api/export-movements")
+def export_movements():
+    return send_file(
+        export_movements_workbook(),
+        as_attachment=True,
+        download_name=f"entradas-y-salidas-de-stock-{datetime.now().strftime('%Y-%m-%d')}.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
 @inventory_controller.post("/api/products")
 def create_product():
     data = request.get_json() or {}
@@ -71,3 +81,14 @@ def create_movement():
     if not created:
         return jsonify({"error": message}), 404 if message == "Producto no encontrado." else 400
     return jsonify({"message": message}), 201
+
+
+@inventory_controller.delete("/api/movements/<int:movement_id>")
+def remove_movement(movement_id):
+    try:
+        deleted, message = delete_movement(movement_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Movimiento no valido."}), 400
+    if not deleted:
+        return jsonify({"error": message}), 404 if message in ("Movimiento no encontrado.", "Producto no encontrado.") else 400
+    return jsonify({"message": message})

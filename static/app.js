@@ -8,9 +8,45 @@ if (productLocationSelect) {
     productLocationInput.placeholder = 'Escribe la locacion';
     productLocationSelect.replaceWith(productLocationInput);
 }
+const productBrandSelect = document.querySelector('#product-form-modern select[name="brand"]');
+if (productBrandSelect) {
+    const productBrandInput = document.createElement('input');
+    productBrandInput.name = 'brand';
+    productBrandInput.placeholder = 'Escribe la marca';
+    productBrandSelect.replaceWith(productBrandInput);
+}
 const money = value => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'USD' }).format(value);
 const date = value => new Date(value.replace(' ', 'T') + 'Z').toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char]));
+document.querySelector('#view-movements thead tr').insertAdjacentHTML('beforeend', '<th>Acciones</th>');
+const inventoryFilterState = { type: '', brand: '', location: '' };
+
+function setupInventoryFilters() {
+    const tableWrap = document.querySelector('.inventory-table-wrap');
+    if (!tableWrap || document.querySelector('#inventory-filters')) return;
+    tableWrap.insertAdjacentHTML('beforebegin', '<div class="inventory-filters" id="inventory-filters"><label>Tipo<select data-inventory-filter="type"><option value="">Todos</option></select></label><label>Marca<select data-inventory-filter="brand"><option value="">Todas</option></select></label><label>Locker<select data-inventory-filter="location"><option value="">Todos</option></select></label></div>');
+    document.querySelectorAll('[data-inventory-filter]').forEach(filter => filter.addEventListener('change', event => {
+        inventoryFilterState[event.target.dataset.inventoryFilter] = event.target.value;
+        renderProducts();
+    }));
+}
+
+function updateInventoryFilterOptions() {
+    const options = {
+        type: [...new Set(state.products.map(product => product.source_sheet).filter(Boolean))].sort((first, second) => first.localeCompare(second, 'es')),
+        brand: [...new Set(state.products.map(product => product.brand).filter(Boolean))].sort((first, second) => first.localeCompare(second, 'es')),
+        location: [...new Set(state.products.map(product => product.location).filter(Boolean))].sort((first, second) => first.localeCompare(second, 'es')),
+    };
+    Object.entries(options).forEach(([filterName, values]) => {
+        const filter = document.querySelector(`[data-inventory-filter="${filterName}"]`);
+        if (!filter) return;
+        const currentValue = inventoryFilterState[filterName];
+        const defaultLabel = filterName === 'brand' ? 'Todas' : 'Todos';
+        filter.innerHTML = `<option value="">${defaultLabel}</option>` + values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+        filter.value = values.includes(currentValue) ? currentValue : '';
+        inventoryFilterState[filterName] = filter.value;
+    });
+}
 
 async function api(path, options) {
     const response = await fetch(path, options);
@@ -26,7 +62,20 @@ function showToast(message, isError = false) {
     setTimeout(() => { toast.className = 'toast'; }, 3000);
 }
 
-<<<<<<< HEAD
+function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Buenos días';
+    if (hour >= 12 && hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+}
+
+function renderGreeting() {
+    const dashboardHeading = document.querySelector('#view-dashboard .page-heading h1');
+    if (!dashboardHeading) return;
+    const profileName = localStorage.getItem('inventoryProfileName') || 'Admin General';
+    dashboardHeading.innerHTML = `${getGreeting()}, <span id="dashboard-profile-name">${profileName}</span> <span>👋</span>`;
+}
+
 function renderProfileName() {
     const profileName = localStorage.getItem('inventoryProfileName') || 'Admin General';
     const profileArea = localStorage.getItem('inventoryProfileArea') || 'Administración';
@@ -36,7 +85,8 @@ function renderProfileName() {
     document.querySelector('#settings-profile-name').textContent = profileName;
     document.querySelector('#settings-profile-area').textContent = profileArea;
     document.querySelector('#profile-initials').textContent = initials || 'AG';
-    document.querySelector('#dashboard-profile-name').textContent = profileName;
+    document.querySelectorAll('.avatar, .top-avatar').forEach(avatar => { avatar.textContent = initials || 'AG'; });
+    renderGreeting();
 }
 
 function editProfileName() {
@@ -62,9 +112,10 @@ function editProfileName() {
     showToast('Perfil actualizado.');
 }
 
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 function renderProducts() {
+    setupInventoryFilters();
+    updateInventoryFilterOptions();
+    document.querySelector('#view-inventory thead th:nth-child(2)').textContent = 'Tipo';
     document.querySelector('#view-products thead th:nth-child(5)').textContent = 'Piso';
     document.querySelector('#view-products thead th:nth-child(6)').textContent = 'Locacion';
     const rows = state.products.map(product => {
@@ -72,7 +123,8 @@ function renderProducts() {
         return `<tr><td><b class="sku">${escapeHtml(product.id)}</b></td><td><strong>${escapeHtml(product.name)}</strong></td><td>${escapeHtml(product.category)}</td><td><strong>${product.stock}</strong> uds.</td><td>${escapeHtml(product.floor || '-')}</td><td>${escapeHtml(product.location || '-')}</td><td><span class="status ${low ? 'warning' : 'ok'}"><i></i>${low ? 'Stock bajo' : 'En stock'}</span></td></tr>`;
     }).join('');
     document.querySelector('#products-table').innerHTML = rows || '<tr><td colspan="7" class="empty-cell">No hay productos registrados.</td></tr>';
-    const inventoryRows = state.products.map(product => {
+    const filteredProducts = state.products.filter(product => (!inventoryFilterState.type || product.source_sheet === inventoryFilterState.type) && (!inventoryFilterState.brand || product.brand === inventoryFilterState.brand) && (!inventoryFilterState.location || product.location === inventoryFilterState.location));
+    const inventoryRows = filteredProducts.map(product => {
         const low = product.stock <= product.min_stock;
         return `<tr><td><strong>${escapeHtml(product.id)}</strong></td><td>${escapeHtml(product.source_sheet || '-')}</td><td>${escapeHtml(product.item || '-')}</td><td><strong>${escapeHtml(product.name)}</strong></td><td>${escapeHtml(product.brand || '-')}</td><td>${escapeHtml(product.model || '-')}</td><td>${escapeHtml(product.part_number || '-')}</td><td><strong>${product.stock}</strong> uds.</td><td>${escapeHtml(product.location || '-')}</td><td>${escapeHtml(product.position || '-')}</td><td>${escapeHtml(product.observation || '-')}</td><td><span class="status ${low ? 'warning' : 'ok'}"><i></i>${low ? 'Reponer' : 'Saludable'}</span></td></tr>`;
     }).join('');
@@ -84,12 +136,11 @@ function renderProducts() {
 }
 
 function renderMovements() {
-    const rows = state.movements.map(move => `<tr><td><strong>${escapeHtml(move.product_name)}</strong><small class="table-sub">${escapeHtml(move.sku)}</small></td><td><span class="movement ${move.movement_type === 'Entrada' ? 'in' : 'out'}"><i>${move.movement_type === 'Entrada' ? '↑' : '↓'}</i>${move.movement_type}</span></td><td><strong>${move.quantity}</strong> uds.</td><td>${date(move.created_at)}</td><td>${escapeHtml(move.note || 'Sin nota')}</td></tr>`).join('');
-    document.querySelector('#movements-table').innerHTML = rows || '<tr><td colspan="5" class="empty-cell">No hay movimientos.</td></tr>';
+    const rows = state.movements.map(move => `<tr><td><strong>${escapeHtml(move.product_name)}</strong><small class="table-sub">${escapeHtml(move.sku)}</small></td><td><span class="movement ${move.movement_type === 'Entrada' ? 'in' : 'out'}"><i>${move.movement_type === 'Entrada' ? '↑' : '↓'}</i>${move.movement_type}</span></td><td><strong>${move.quantity}</strong> uds.</td><td>${date(move.created_at)}</td><td>${escapeHtml(move.note || 'Sin nota')}</td><td><button class="text-button delete-movement" type="button" data-delete-movement="${move.id}" title="Eliminar movimiento">Eliminar</button></td></tr>`).join('');
+    document.querySelector('#movements-table').innerHTML = rows || '<tr><td colspan="6" class="empty-cell">No hay movimientos.</td></tr>';
     document.querySelector('#recent-movements').innerHTML = state.movements.slice(0, 4).map(move => `<tr><td><strong>${escapeHtml(move.product_name)}</strong><small class="table-sub">${escapeHtml(move.sku)}</small></td><td><span class="movement ${move.movement_type === 'Entrada' ? 'in' : 'out'}"><i>${move.movement_type === 'Entrada' ? '↑' : '↓'}</i>${move.movement_type}</span></td><td><strong>${move.quantity}</strong> uds.</td><td>${date(move.created_at)}</td><td>${escapeHtml(move.note || 'Sin nota')}</td></tr>`).join('');
 }
 
-<<<<<<< HEAD
 function renderReports() {
     const entries = state.movements.filter(move => move.movement_type === 'Entrada').reduce((total, move) => total + Number(move.quantity || 0), 0);
     const exits = state.movements.filter(move => move.movement_type === 'Salida').reduce((total, move) => total + Number(move.quantity || 0), 0);
@@ -104,6 +155,36 @@ function renderReports() {
     const groupEntries = Object.entries(stockByGroup).sort((first, second) => second[1] - first[1]);
     const groupMaximum = Math.max(...groupEntries.map(([, value]) => value), 1);
     document.querySelector('#group-chart').innerHTML = groupEntries.length ? groupEntries.map(([label, value]) => `<div class="bar-row"><span>${escapeHtml(label)}</span><div class="bar-track"><i class="bar-fill" style="width: ${(value / groupMaximum) * 100}%"></i></div><strong>${value.toLocaleString('es-MX')}</strong></div>`).join('') : '<div class="empty-state">No hay existencias registradas.</div>';
+}
+
+function setupInventoryScrollbar() {
+    const tableWrap = document.querySelector('.inventory-table-wrap');
+    if (!tableWrap || tableWrap.dataset.scrollbarReady) return;
+    tableWrap.dataset.scrollbarReady = 'true';
+    const scrollbar = document.createElement('div');
+    const scrollbarContent = document.createElement('div');
+    scrollbar.className = 'inventory-scrollbar';
+    scrollbar.append(scrollbarContent);
+    document.body.append(scrollbar);
+
+    const syncSizeAndPosition = () => {
+        const table = tableWrap.querySelector('table');
+        const bounds = tableWrap.getBoundingClientRect();
+        const visible = bounds.bottom > 0 && bounds.top < window.innerHeight;
+        const hasOverflow = table && table.scrollWidth > tableWrap.clientWidth;
+        scrollbarContent.style.width = `${table ? table.scrollWidth : 0}px`;
+        scrollbar.style.left = `${bounds.left}px`;
+        scrollbar.style.width = `${bounds.width}px`;
+        scrollbar.style.bottom = '0px';
+        scrollbar.style.display = visible && hasOverflow ? 'block' : 'none';
+        scrollbar.scrollLeft = tableWrap.scrollLeft;
+    };
+
+    tableWrap.addEventListener('scroll', () => { scrollbar.scrollLeft = tableWrap.scrollLeft; });
+    scrollbar.addEventListener('scroll', () => { tableWrap.scrollLeft = scrollbar.scrollLeft; });
+    window.addEventListener('scroll', syncSizeAndPosition, { passive: true });
+    window.addEventListener('resize', syncSizeAndPosition);
+    syncSizeAndPosition();
 }
 
 function notifyLowStock() {
@@ -126,8 +207,6 @@ function notifyLowStock() {
     }
 }
 
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 async function loadData() {
     const [dashboard, products, movements] = await Promise.all([api('/api/dashboard'), api('/api/products'), api('/api/movements')]);
     state.products = products;
@@ -137,11 +216,9 @@ async function loadData() {
     document.querySelector('#metric-low').textContent = dashboard.low_stock;
     renderProducts();
     renderMovements();
-<<<<<<< HEAD
     renderReports();
+    setupInventoryScrollbar();
     notifyLowStock();
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 }
 
 function navigate(viewName) {
@@ -161,7 +238,7 @@ function openModal(type) {
     document.querySelector('#product-form-wrap').hidden = type !== 'product';
     document.querySelector('#movement-form-wrap').hidden = type !== 'movement';
     if (type === 'movement') {
-        const brands = ['DEXON', 'RL', 'SATEC', 'PFENIX CONTAC', 'ETRELEC', 'KYAND', 'ABB'];
+        const brands = [...new Set(state.products.map(product => String(product.brand || '').trim()).filter(Boolean))].sort((first, second) => first.localeCompare(second, 'es'));
         let brandField = document.querySelector('#movement-brand');
         if (!brandField) {
             const movementDetails = document.createElement('div');
@@ -198,7 +275,15 @@ document.querySelector('#product-modal-modern').addEventListener('click', event 
 document.querySelector('#mobile-menu').addEventListener('click', () => document.querySelector('#sidebar').classList.toggle('open'));
 document.querySelector('#product-filter').addEventListener('input', event => filterProducts(event.target.value));
 document.querySelector('#global-search').addEventListener('input', event => renderSearch(event.target.value));
-<<<<<<< HEAD
+document.querySelector('#movements-table').addEventListener('click', async event => {
+    const button = event.target.closest('[data-delete-movement]');
+    if (!button || !window.confirm('¿Eliminar este movimiento y revertir su efecto en el stock?')) return;
+    try {
+        await api(`/api/movements/${button.dataset.deleteMovement}`, { method: 'DELETE' });
+        showToast('Movimiento eliminado correctamente.');
+        await loadData();
+    } catch (error) { showToast(error.message, true); }
+});
 document.querySelector('#edit-profile-button').addEventListener('click', editProfileName);
 document.querySelector('#low-stock-notifications').addEventListener('change', async event => {
     if (!event.target.checked) return;
@@ -206,8 +291,6 @@ document.querySelector('#low-stock-notifications').addEventListener('change', as
     notifyLowStock();
 });
 renderProfileName();
-=======
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
 
 document.querySelector('#product-form-modern').addEventListener('submit', async event => {
     event.preventDefault();
@@ -217,12 +300,8 @@ document.querySelector('#movement-form').addEventListener('submit', async event 
     event.preventDefault();
     try {
         const data = Object.fromEntries(new FormData(event.target));
-<<<<<<< HEAD
         const productCode = data.product_sku.trim().toLowerCase();
         const product = state.products.find(item => item.sku.toLowerCase() === productCode || String(item.id).toLowerCase() === productCode);
-=======
-        const product = state.products.find(item => item.sku.toLowerCase() === data.product_sku.trim().toLowerCase());
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
         if (!product) throw new Error('El codigo del producto no existe.');
         data.product_id = product.id;
         data.quantity = Number(data.quantity);
@@ -235,9 +314,17 @@ document.querySelector('#movement-form').addEventListener('submit', async event 
     } catch (error) { showToast(error.message, true); }
 });
 document.querySelector('#export-button').addEventListener('click', async () => { try { const response = await fetch('/api/export'); if (!response.ok) throw new Error('No se pudo exportar el inventario.'); const blob = await response.blob(); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `inventario-nakama-soluciones-${new Date().toISOString().slice(0, 10)}.xlsx`; link.click(); URL.revokeObjectURL(link.href); showToast('Excel exportado correctamente.'); } catch (error) { showToast(error.message, true); } });
-<<<<<<< HEAD
-document.querySelector('#report-button').addEventListener('click', () => document.querySelector('#export-button').click());
-=======
-document.querySelector('#report-button').addEventListener('click', () => showToast('Reporte generado. Puedes consultar el inventario y exportarlo en Excel.'));
->>>>>>> 7598cf57ec08a6405498692abd6908e95aa9e3ac
+document.querySelector('#report-button').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/export-movements');
+        if (!response.ok) throw new Error('No se pudieron exportar los movimientos.');
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `entradas-y-salidas-de-stock-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        showToast('Movimientos exportados correctamente.');
+    } catch (error) { showToast(error.message, true); }
+});
 loadData().catch(error => showToast(error.message, true));
