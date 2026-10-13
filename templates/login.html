@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b2a3d">
+    <title>Acceso de Logística | Nakama Soluciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <!-- Íconos reutilizables -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+        <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3.3 7.6 12 12l8.7-4.4M12 22V12"/></symbol>
+        <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h12v10H2zM14 9h4l3.5 3.5V16H14"/><circle cx="7" cy="17.5" r="1.9"/><circle cx="17.5" cy="17.5" r="1.9"/></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+        <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4"/></symbol>
+        <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3M12 4v10M8 10l4 4 4-4"/></symbol>
+        <symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13"/><path d="M7 21v-8h10v8M7 17h10"/></symbol>
+        <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5.5" y="4" width="13" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14.5l2 2 4-4.5"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 3 8.3 7 10 4-1.7 7-5.4 7-10V6l-7-3z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+        <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
+    </svg>
+
+    <main class="login-layout">
+        <section class="login-story" aria-label="Sistema de inventario del área de logística">
+            <img class="story-background" src="{{ url_for('static', filename='img.jpg.jpeg') }}" alt="" aria-hidden="true">
+            <div class="story-grid" aria-hidden="true"></div>
+
+            <!-- Red de rutas de distribución (decorativa) -->
+            <svg class="story-routes" viewBox="0 0 640 440" aria-hidden="true" focusable="false">
+                <circle class="route-ring" cx="520" cy="190" r="170"/>
+                <circle class="route-ring" cx="520" cy="190" r="255"/>
+                <path class="route-line" d="M250 110 Q340 55 430 170"/>
+                <path class="route-line" d="M430 170 Q485 105 565 62"/>
+                <path class="route-line" d="M430 170 Q520 175 612 228"/>
+                <path class="route-line" d="M430 170 Q412 245 500 302"/>
+                <path class="route-line" d="M500 302 Q425 385 330 362"/>
+                <path class="route-line" d="M250 110 Q150 235 330 362"/>
+                <circle class="route-pulse" cx="565" cy="62" r="9"/>
+                <circle class="route-pulse delay" cx="500" cy="302" r="9"/>
+                <circle class="route-node" cx="250" cy="110" r="6"/>
+                <circle class="route-node" cx="430" cy="170" r="8"/>
+                <circle class="route-node hot" cx="565" cy="62" r="6"/>
+                <circle class="route-node" cx="612" cy="228" r="5"/>
+                <circle class="route-node hot" cx="500" cy="302" r="6"/>
+                <circle class="route-node" cx="330" cy="362" r="6"/>
+            </svg>
+
+            <header class="brand-lockup">
+                <img src="{{ url_for('static', filename='NAKAMA LOGO 1.png') }}" alt="Nakama Soluciones">
+                <span class="brand-divider"></span>
+                <span class="brand-unit">LOGÍSTICA<br><b>CONTROL DE INVENTARIO</b></span>
+            </header>
+
+            <div class="story-copy">
+                <span class="section-tag"><i></i> OPERACIONES · ALMACÉN</span>
+                <h1>Control total de almacenes y operaciones <em>logísticas.</em></h1>
+                <p>Supervisa inventario, controla ubicaciones, registra movimientos y optimiza despachos desde una única plataforma logística.</p>
+            </div>
+
+            <!-- Flujo de la cadena logística -->
+            <ol class="flow-track" aria-label="Flujo logístico">
+                <li><span class="flow-node"><svg class="ico"><use href="#i-inbox"/></svg></span><b>Recepción</b><small>Ingreso de mercadería</small></li>
+                <li><span class="flow-node"><svg class="ico"><use href="#i-warehouse"/></svg></span><b>Almacenamiento</b><small>Ubicación en racks</small></li>
+                <li><span class="flow-node"><svg class="ico"><use href="#i-clipboard"/></svg></span><b>Preparación</b><small>Picking y control</small></li>
+                <li class="is-final"><span class="flow-node"><svg class="ico"><use href="#i-truck"/></svg></span><b>Despacho</b><small>Salida y entrega</small></li>
+            </ol>
+
+            <div class="story-metrics" aria-label="Indicadores de inventario">
+                <article><span class="metric-symbol amber"><svg class="ico"><use href="#i-box"/></svg></span><small>Stock total</small><strong id="login-stock">—</strong><label>unidades</label></article>
+                <article><span class="metric-symbol cyan"><svg class="ico"><use href="#i-truck"/></svg></span><small>Despachos hoy</small><strong id="login-dispatches">—</strong><label>movimientos</label></article>
+                <article><span class="metric-symbol cyan"><svg class="ico"><use href="#i-pin"/></svg></span><small>Ubicaciones</small><strong id="login-locations">—</strong><label>zonas activas</label></article>
+                <article><span class="metric-symbol cyan"><svg class="ico"><use href="#i-swap"/></svg></span><small>Movimientos</small><strong id="login-movements">—</strong><label>registros</label></article>
+            </div>
+
+            <div class="warehouse-card" aria-hidden="true">
+                <div class="warehouse-card-top"><span>VISTA DEL ALMACÉN</span><span class="live-indicator">SISTEMA ACTIVO</span></div>
+                <div class="ops-preview">
+                    <div class="locker-map">
+                        <div class="zone-label">PLANO DE RACKS Y MUELLES</div>
+                        <div class="locker-grid">
+                            <span class="rack is-occ" style="--fill:86%">A01</span>
+                            <span class="rack is-occ" style="--fill:64%">A02</span>
+                            <span class="rack is-move" style="--fill:100%">A03</span>
+                            <span class="rack is-occ" style="--fill:92%">A04</span>
+                            <em class="aisle">PASILLO CENTRAL</em>
+                            <span class="rack is-free" style="--fill:14%">B01</span>
+                            <span class="rack is-move" style="--fill:72%">B02</span>
+                            <span class="rack is-occ" style="--fill:78%">B03</span>
+                            <span class="rack is-free" style="--fill:32%">B04</span>
+                        </div>
+                        <div class="dock-row">
+                            <span class="dock is-move"><svg class="ico"><use href="#i-truck"/></svg>Muelle 1</span>
+                            <span class="dock is-free"><svg class="ico"><use href="#i-truck"/></svg>Muelle 2</span>
+                            <span class="dock is-occ"><svg class="ico"><use href="#i-truck"/></svg>Muelle 3</span>
+                        </div>
+                        <div class="locker-legend"><i class="lg-occ"></i> Ocupado <i class="lg-free"></i> Disponible <i class="lg-move"></i> En movimiento</div>
+                    </div>
+                    <div class="activity-preview"><div class="activity-title">MOVIMIENTOS RECIENTES</div><div id="login-recent-movements"><div class="preview-row"><i>↗</i><span>Preparando vista operativa<small>Inventario central</small></span><b>···</b></div></div></div>
+                    <div class="scan-card">
+                        <div class="scan-graphic">
+                            <svg class="barcode" viewBox="0 0 64 40" aria-hidden="true"><path d="M4 4h2v32H4zM8 4h1v32H8zM11 4h3v32h-3zM16 4h1v32h-1zM19 4h2v32h-2zM23 4h1v32h-1zM26 4h3v32h-3zM31 4h1v32h-1zM34 4h2v32h-2zM38 4h3v32h-3zM43 4h1v32h-1zM46 4h2v32h-2zM50 4h1v32h-1zM53 4h3v32h-3zM58 4h2v32h-2z"/></svg>
+                            <span class="scan-beam"></span>
+                        </div>
+                        <small>CONTROL DE EXISTENCIAS</small>
+                    </div>
+                </div>
+                <div class="warehouse-card-bottom"><span>NAKAMA SOLUCIONES</span><span>ÁREA DE LOGÍSTICA</span></div>
+            </div>
+
+            <footer class="story-footer"><span>Gestión logística</span><span>·</span><span>Control de existencias</span><span>·</span><span>Nakama Soluciones</span></footer>
+            <div class="dock-stripe" aria-hidden="true"></div>
+        </section>
+
+        <section class="login-side">
+            <div class="side-topline"><span>NAKAMA <b>/</b> SISTEMAS</span><span><i></i> ACCESO INTERNO</span></div>
+            <div class="login-card">
+                <span class="card-stripe" aria-hidden="true"></span>
+                <div class="card-head">
+                    <div class="login-icon" aria-hidden="true"><svg class="ico"><use href="#i-warehouse"/></svg></div>
+                    <div>
+                        <p class="form-eyebrow">PORTAL DE OPERACIONES</p>
+                        <h2>Bienvenido</h2>
+                    </div>
+                </div>
+                <p class="login-intro" id="login-intro">Ingresa con tu usuario y contraseña para acceder al inventario.</p>
+
+                <form id="login-form">
+                    <div id="username-field">
+                        <label id="username-label" for="username">Usuario</label>
+                        <div class="password-field">
+                            <input id="username" name="username" type="text" autocomplete="username" placeholder="Ingresa tu usuario" autofocus>
+                        </div>
+                    </div>
+                    <label id="password-label" for="password">Contraseña</label>
+                    <div class="password-field">
+                        <svg class="ico" aria-hidden="true"><use href="#i-lock"/></svg>
+                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required>
+                        <button class="password-toggle" id="password-toggle" type="button" aria-label="Mostrar contraseña">Mostrar</button>
+                    </div>
+                    <p class="form-message" id="form-message" role="alert" aria-live="polite"></p>
+                    <button class="login-submit" id="login-submit" type="submit"><span>Iniciar sesión</span><svg class="ico" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+                </form>
+                <div class="secure-note"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span>Acceso protegido para el equipo de logística</span></div>
+
+                <div class="live-dashboard">
+                    <div class="live-dashboard-heading"><span><i></i> OPERACIÓN EN VIVO</span><b><i></i> Sistema operativo</b></div>
+                    <div class="live-dashboard-grid">
+                        <article><span class="live-icon"><svg class="ico"><use href="#i-box"/></svg></span><p>Inventario actualizado<strong id="login-live-stock">—</strong></p></article>
+                        <article><span class="live-icon"><svg class="ico"><use href="#i-truck"/></svg></span><p>Despachos hoy<strong id="login-live-dispatches">—</strong></p></article>
+                        <article><span class="live-icon"><svg class="ico"><use href="#i-pin"/></svg></span><p>Almacenes conectados<strong id="login-live-locations">—</strong></p></article>
+                        <article><span class="live-icon"><svg class="ico"><use href="#i-trend"/></svg></span><p>Operación estable<strong id="login-live-status">Consultando…</strong></p></article>
+                    </div>
+                </div>
+            </div>
+            <footer class="login-footer">© 2026 Nakama Soluciones <span>·</span> Sistema de Inventario</footer>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+</body>
+</html>

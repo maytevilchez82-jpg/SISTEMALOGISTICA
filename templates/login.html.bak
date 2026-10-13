@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#102c3b">
+    <title>Acceso de Logística | Nakama Soluciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <main class="login-layout">
+        <section class="login-story" aria-label="Sistema de inventario del área de logística">
+            <div class="story-grid" aria-hidden="true"></div>
+            <div class="story-orbit orbit-one" aria-hidden="true"></div>
+            <div class="story-orbit orbit-two" aria-hidden="true"></div>
+            <div class="story-index" aria-hidden="true">LOG<br><b>01</b></div>
+            <header class="brand-lockup">
+                <img src="{{ url_for('static', filename='NAKAMA LOGO 1.png') }}" alt="Nakama Soluciones">
+                <span class="brand-divider"></span>
+                <span class="brand-unit">LOGÍSTICA<br><b>CONTROL DE INVENTARIO</b></span>
+            </header>
+            <div class="story-copy">
+                <span class="section-tag"><i></i> OPERACIONES · ALMACÉN</span>
+                <h1>Control total de almacenes y operaciones <em>logísticas.</em></h1>
+                <p>Supervisa inventario, controla ubicaciones, registra movimientos y optimiza despachos desde una única plataforma logística.</p>
+            </div>
+            <div class="story-metrics" aria-label="Indicadores de inventario">
+                <article><span class="metric-symbol amber">▣</span><small>Stock total</small><strong id="login-stock">—</strong><label>unidades</label></article>
+                <article><span class="metric-symbol cyan">▰</span><small>Despachos hoy</small><strong id="login-dispatches">—</strong><label>movimientos</label></article>
+                <article><span class="metric-symbol cyan">⌖</span><small>Ubicaciones</small><strong id="login-locations">—</strong><label>zonas activas</label></article>
+                <article><span class="metric-symbol cyan">⇄</span><small>Movimientos</small><strong id="login-movements">—</strong><label>registros</label></article>
+            </div>
+            <div class="warehouse-card" aria-hidden="true">
+                <div class="warehouse-card-top"><span>VISTA DEL ALMACÉN</span><span class="live-indicator">SISTEMA ACTIVO</span></div>
+                <div class="ops-preview">
+                    <div class="locker-map"><div class="zone-label">ZONAS DE ALMACENAMIENTO</div><div class="locker-grid"><span>A01</span><span>A02</span><span>A03</span><span>A04</span><span>B01</span><span>B02</span><span>B03</span><span>B04</span></div><div class="locker-legend"><i></i> Ocupado <i></i> Disponible <i></i> En movimiento</div></div>
+                    <div class="activity-preview"><div class="activity-title">MOVIMIENTOS RECIENTES</div><div id="login-recent-movements"><div class="preview-row"><i>↗</i><span>Preparando vista operativa<small>Inventario central</small></span><b>···</b></div></div></div>
+                    <div class="scan-card"><div class="scan-graphic"><span></span><i>▥</i></div><small>CONTROL DE EXISTENCIAS</small></div>
+                </div>
+                <div class="warehouse-card-bottom"><span>NAKAMA SOLUCIONES</span><span>ÁREA DE LOGÍSTICA</span></div>
+            </div>
+            <footer class="story-footer"><span>Gestión logística</span><span>·</span><span>Control de existencias</span><span>·</span><span>Nakama Soluciones</span></footer>
+        </section>
+
+        <section class="login-side">
+            <div class="side-topline"><span>NAKAMA <b>/</b> SISTEMAS</span><span><i></i> ACCESO INTERNO</span></div>
+            <div class="login-card">
+                <div class="mobile-brand"><img src="{{ url_for('static', filename='NAKAMA LOGO 1.png') }}" alt="Nakama Soluciones"><span>LOGÍSTICA</span></div>
+                <div class="login-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 20V8.5L12 4l8 4.5V20M8 20v-6h8v6M8 9h.01M12 9h.01M16 9h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 20h18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+                <p class="form-eyebrow">PORTAL DE OPERACIONES</p>
+                <h2>Bienvenido</h2>
+                <p class="login-intro">Ingresa para administrar el inventario del área de logística.</p>
+
+                <form id="login-form">
+                    <label for="password">Contraseña de administrador</label>
+                    <div class="password-field">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required autofocus>
+                        <button class="password-toggle" id="password-toggle" type="button" aria-label="Mostrar contraseña">Mostrar</button>
+                    </div>
+                    <p class="form-message" id="form-message" role="alert" aria-live="polite"></p>
+                    <button class="login-submit" id="login-submit" type="submit"><span>Iniciar sesión</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </form>
+                <div class="secure-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 3 8.3 7 10 4-1.7 7-5.4 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Acceso protegido para el equipo de logística</span></div>
+                <div class="live-dashboard"><div class="live-dashboard-heading"><span><i></i> OPERACIÓN EN VIVO</span><b><i></i> Sistema operativo</b></div><div class="live-dashboard-grid"><article><span class="live-icon">▣</span><p>Inventario actualizado<strong id="login-live-stock">—</strong></p></article><article><span class="live-icon">▰</span><p>Despachos hoy<strong id="login-live-dispatches">—</strong></p></article><article><span class="live-icon">⌖</span><p>Almacenes conectados<strong id="login-live-locations">—</strong></p></article><article><span class="live-icon">↗</span><p>Operación estable<strong id="login-live-status">Consultando…</strong></p></article></div></div>
+                <a class="visitor-link" href="{{ url_for('inventory.index') }}">Continuar como visitante <span>→</span></a>
+            </div>
+            <footer class="login-footer">© 2026 Nakama Soluciones <span>·</span> Sistema de Inventario</footer>
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+</body>
+</html>
